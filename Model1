@@ -30,7 +30,7 @@ C= k1 * (TGFA)**f * M
 f = 10
 M = 1
 
-# ODE for TGFLU
+# ODE for latent unbound TGF-B 
 TGFLU = (k3 * C) - (k5 * TGFLU) - (k4 * TGFLU) + (k4b * TGFLB) - (k6 * TGFLU)
 
 def culture_system ()
