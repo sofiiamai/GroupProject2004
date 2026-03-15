@@ -1,5 +1,6 @@
 #Loading Required Libraries for Analysis and Visualization
 import numpy as np
+from scipy.integrate import solve_ivp
 import matplotlib.pyplot as plt
 k1 = 1.4*10**(-3)
 k2 = 1.4*10**(-4)
