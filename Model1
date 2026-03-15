@@ -12,7 +12,9 @@ k5 = 6 × 10**(-2)
 k6 = 6 × 10**(-2)
 k7 = 6 × 10**(-2)
 k8 = 0.258 # per minute
-# Chondrocytes = C , MSCs = M, TGF-B- = TGFLU, TGF-B = TGFLB, TGF-B+ = TGFA
+
+# Key: Chondrocytes = C , MSCs = M, TGF-B- = TGFLU, TGF-B = TGFLB, TGF-B+ = TGFA
+
 # ODE for Latent Bound TGF-b
 dTGFLB/dt = k4 * TGFLU - k4b * TGFLB - k7 * TGFLB
 # ODE for the Active TGF-B
@@ -20,4 +22,4 @@ dTGFA/dT = k6*TGFLU - k8*TGFA - f*k1*TGFA**(f)*M - g*k2*TGFA**(g)*M
 
 #ODE for Mesenchymal Stem Cells (M)
 dM/dt = (-k1*(TGFA)**f)*M + (2*k2(TGFA)**g)*M 
-#ODE
+
