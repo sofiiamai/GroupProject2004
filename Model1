@@ -2,6 +2,7 @@
 import numpy as np
 from scipy.integrate import solve_ivp
 import matplotlib.pyplot as plt
+#parameters
 k1 = 1.4*10**(-3)
 k2 = 1.4*10**(-4)
 k3 = 1.094 × 10**(-1)
