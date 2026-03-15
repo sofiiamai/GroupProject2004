@@ -2,4 +2,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+# Chondrocytes = C , MSCs = M, TGF-B- = TGFLU, TGF-B = TGFLB, TGF-B+ = TGFA
 
