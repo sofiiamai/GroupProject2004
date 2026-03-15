@@ -4,15 +4,15 @@ from scipy.integrate import solve_ivp
 import matplotlib.pyplot as plt
 #parameters
 params = {
-k1 = 1.4*10**(-3) #per minute
-k2 = 1.4*10**(-4) #per minute
-k3 = 1.094 × 10**(-1) #ng/(min × Mio cells)
-k4 = 10**(−1) #per minute
-k4b =
-k5 = 6 * 10**(-2) #per minute
-k6 = 6 * 10**(-2) #per minute
-k7 = 6 * 10**(-2) #per minute
-k8 = 0.258 # per minute
+"k1": 1.4*10**(-3) #per minute
+"k2": 1.4*10**(-4) #per minute
+"k3": 1.094 × 10**(-1) #ng/(min × Mio cells)
+"k4": 10**(−1) #per minute
+"k4b":
+"k5": 6 × 10**(-2) #per minute
+"k6": 6 × 10**(-2) #per minute
+"k7": 6 × 10**(-2) #per minute
+"k8": 0.258 # per minute
 }
 # Key: Chondrocytes = C , MSCs = M, TGF-B- = TGFLU, TGF-B = TGFLB, TGF-B+ = TGFA
 
