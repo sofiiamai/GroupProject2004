@@ -1,6 +1,15 @@
 #Loading Required Libraries for Analysis and Visualization
 import numpy as np
 import matplotlib.pyplot as plt
-
+k1 = 1.4*10^(-3)
+k2 = 1.4*10^(-4)
+k3 = 1.094 × 10^(-1)
+k4 = 10^(−1)
+k4b =
+k5 = 6 × 10^(-2)
+k6 = 6 × 10^(-2)
+k7 = 6 × 10^(-2)
+k8 = 0.258 # per minute
 # Chondrocytes = C , MSCs = M, TGF-B- = TGFLU, TGF-B = TGFLB, TGF-B+ = TGFA
+dTGFLB/dt = k4 * TGFLU
 
