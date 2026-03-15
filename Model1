@@ -13,6 +13,8 @@ params = {
 "k6": 6 × 10**(-2), #per minute
 "k7": 6 × 10**(-2), #per minute
 "k8": 0.258, # per minute
+"f": 10, 
+"M": 1
 }
 # Key: Chondrocytes = C , MSCs = M, TGF-B- = TGFLU, TGF-B = TGFLB, TGF-B+ = TGFA
 
@@ -34,4 +36,20 @@ M = 1
 TGFLU = (k3 * C) - (k5 * TGFLU) - (k4 * TGFLU) + (k4b * TGFLB) - (k6 * TGFLU)
 
 def culture_system (t, y, p):
-  
+  C, M, TGFLU, TGFLB, TGFA = y
+  # ODE for Latent Bound TGF-b
+  dTGFLB/dt = p["k4"] * TGFLU -p["k4b"]* TGFLB - p["k7"] * TGFLB
+  # ODE for the Active TGF-B
+  dTGFA/dT = k6*TGFLU - k8*TGFA - f*k1*TGFA**(f)*M - g*k2*TGFA**(g)*M
+
+  #ODE for Mesenchymal Stem Cells (M)
+  dM/dt = (-k1*(TGFA)**f)*M + (2*k2(TGFA)**g)*M 
+
+  # ODE for chondrocytes
+  C= k1 * (TGFA)**f * M
+ 
+
+# ODE for latent unbound TGF-B 
+TGFLU = (k3 * C) - (k5 * TGFLU) - (k4 * TGFLU) + (k4b * TGFLB) - (k6 * TGFLU)
+
+
