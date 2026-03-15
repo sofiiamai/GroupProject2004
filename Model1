@@ -24,4 +24,13 @@ dTGFA/dT = k6*TGFLU - k8*TGFA - f*k1*TGFA**(f)*M - g*k2*TGFA**(g)*M
 #ODE for Mesenchymal Stem Cells (M)
 dM/dt = (-k1*(TGFA)**f)*M + (2*k2(TGFA)**g)*M 
 
+# ODE for chondrocytes
+C= k1 * (TGFA)**f * M
+# parameters
+f = 10
+M = 1
+
+# ODE for TGFLU
+TGFLU = (k3 * C) - (k5 * TGFLU) - (k4 * TGFLU) + (k4b * TGFLB) - (k6 * TGFLU)
+
 def culture_system ()
