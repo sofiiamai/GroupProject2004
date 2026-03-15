@@ -27,7 +27,7 @@ dTGFA/dT = k6*TGFLU - k8*TGFA - f*k1*TGFA**(f)*M - g*k2*TGFA**(g)*M
 dM/dt = (-k1*(TGFA)**f)*M + (2*k2(TGFA)**g)*M 
 
 # ODE for chondrocytes
-C= k1 * (TGFA)**f * M
+dC/dt = k1 * (TGFA)**f * M
 # parameters
 f = 10
 M = 1
