@@ -20,3 +20,4 @@ dTGFA/dT = k6*TGFLU - k8*TGFA - f*k1*TGFA**(f)*M - g*k2*TGFA**(g)*M
 
 #ODE for Mesenchymal Stem Cells (M)
 dM/dt = (-k1*(TGFA)**f)*M + (2*k2(TGFA)**g)*M 
+#ODE
