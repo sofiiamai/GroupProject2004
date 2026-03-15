@@ -6,35 +6,36 @@ import matplotlib.pyplot as plt
 params = {
 "k1": 1.4*10**(-3), #per minute
 "k2": 1.4*10**(-4), #per minute
-"k3": 1.094 × 10**(-1), #ng/(min × Mio cells)
-"k4": 10**(−1), #per minute
-"k4b": 0.3*10**(−1)
-"k5": 6 × 10**(-2), #per minute
-"k6": 6 × 10**(-2), #per minute
-"k7": 6 × 10**(-2), #per minute
+"k3": 1.094 * 10**(-1), #ng/(min × Mio cells)
+"k4": 10**(-1), #per minute
+"k4b": 0.3*10**(-1), #per minute - arbitrary
+"k5": 6 * 10**(-2), #per minute
+"k6": 6 * 10**(-2), #per minute
+"k7": 6 * 10**(-2), #per minute
 "k8": 0.258, # per minute
 "f": 10, 
-"M": 1
+"M": 1, 
+"g": 10,
 }
 # Key: Chondrocytes = C , MSCs = M, TGF-B- = TGFLU, TGF-B = TGFLB, TGF-B+ = TGFA
 
 def culture_system (t, y, p):
   C, M, TGFLU, TGFLB, TGFA = y
   # ODE for latent unbound TGF-B 
-  dTGFLU/dt = (p["k3"] * C) - (p["k5"] * TGFLU) - (p["k4"] * TGFLU) + (p["k4b"] * TGFLB) - (p["k6"] * TGFLU)  
+  dTGFLU = (p["k3"] * C) - (p["k5"] * TGFLU) - (p["k4"] * TGFLU) + (p["k4b"] * TGFLB) - (p["k6"] * TGFLU)  
 
   # ODE for Latent Bound TGF-b
-  dTGFLB/dt = p["k4"] * TGFLU -p["k4b"]* TGFLB - p["k7"] * TGFLB
+  dTGFLB = p["k4"] * TGFLU -p["k4b"]* TGFLB - p["k7"] * TGFLB
 
   # ODE for the Active TGF-B
-  dTGFA/dT = p["k6"]*TGFLU - p["k8"]*TGFA - f*p["k1"]*TGFA**(f)*M - g*p["k2"]*TGFA**(g)*M
+  dTGFA = p["k6"]*TGFLU - p["k8"]*TGFA - p["f"]*p["k1"]*TGFA**(p["f"])*M - p["g"]*p["k2"]*TGFA**(p["g"])*M
 
   #ODE for Mesenchymal Stem Cells (M)
-  dM/dt = (-p["k1"]*(TGFA)**f)*M + (2*p["k2"](TGFA)**g)*M 
+  dM = (-p["k1"]*(TGFA)**p["f"])*M + (2*p["k2"]*(TGFA)**p["g"])*M 
 
   # ODE for chondrocytes
-  dC/dt= p["k1"] * (TGFA)**f * M
-return [dTGFLU/dt, dTGFLB/dt, dTGFA/dT , dM/dt, dC/dt ]
+  dC= p["k1"] * (TGFA)**p["f"] * M
+  return [dC, dM, dTGFLU, dTGFLB, dTGFA]
 
 #Time and initial condition
 y0 = [
@@ -45,16 +46,44 @@ y0 = [
     0,    # Active TGF-B initial concentration
 ]
  
-t_start, t_end = 0, 1000          # time in minutes
+t_start, t_end = 0, 10000          # time in minutes
 t_eval = np.linspace(t_start, t_end, 50)
 
 def solver(p=params, y_init=y0):
   sol = solve_ivp(
-  fun=lambda t, y: culture_system(t, y, p)
-  t_span=(t_start, t_end)  
+  fun=lambda t, y: culture_system(t, y, p),
+  t_span=(t_start, t_end),  
   y0=y_init,
   t_eval=t_eval,
   )
- if not sol.success:
-        raise RuntimeError(f"Solver failed: {sol.message}")
-    return sol
+  if not sol.success:
+    raise RuntimeError(f"Solver failed: {sol.message}")
+  return sol
+#make the plotting function 
+
+def plot_timeseries(sol, title="Cell Culture Model"):
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 7), sharex=True)
+ 
+    # Cells
+    ax1.plot(sol.t, sol.y[0], label="C", lw=2)
+    ax1.plot(sol.t, sol.y[1], label="M", lw=2, linestyle="--")
+    ax1.set_ylabel("Cell count")
+    ax1.legend()
+    ax1.set_title(title)
+    ax1.grid(True, alpha=0.3)
+ 
+    # Compounds
+    ax2.plot(sol.t, sol.y[2], label="TGFLU", lw=2)
+    ax2.plot(sol.t, sol.y[3], label="TGFLB", lw=2, linestyle="--")
+    ax2.plot(sol.t, sol.y[4], label="TGFA", lw=2, linestyle=":")
+    ax2.set_ylabel("Concentration")
+    ax2.set_xlabel("Time")
+    ax2.legend()
+    ax2.grid(True, alpha=0.3)
+ 
+    plt.tight_layout()
+    plt.savefig("timeseries.png", dpi=150)
+    plt.show()
+
+sol = solver()
+plot_timeseries(sol)
