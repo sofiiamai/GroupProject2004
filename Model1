@@ -18,23 +18,6 @@ params = {
 }
 # Key: Chondrocytes = C , MSCs = M, TGF-B- = TGFLU, TGF-B = TGFLB, TGF-B+ = TGFA
 
-# ODE for Latent Bound TGF-b
-dTGFLB/dt = k4 * TGFLU - k4b * TGFLB - k7 * TGFLB
-# ODE for the Active TGF-B
-dTGFA/dT = k6*TGFLU - k8*TGFA - f*k1*TGFA**(f)*M - g*k2*TGFA**(g)*M
-
-#ODE for Mesenchymal Stem Cells (M)
-dM/dt = (-k1*(TGFA)**f)*M + (2*k2(TGFA)**g)*M 
-
-# ODE for chondrocytes
-dC/dt = k1 * (TGFA)**f * M
-# parameters
-f = 10
-M = 1
-
-# ODE for latent unbound TGF-B 
-TGFLU = (k3 * C) - (k5 * TGFLU) - (k4 * TGFLU) + (k4b * TGFLB) - (k6 * TGFLU)
-
 def culture_system (t, y, p):
   C, M, TGFLU, TGFLB, TGFA = y
   # ODE for latent unbound TGF-B 
@@ -53,3 +36,14 @@ def culture_system (t, y, p):
   dC/dt= p["k1"] * (TGFA)**f * M
 return [dTGFLU/dt, dTGFLB/dt, dTGFA/dT , dM/dt, dC/dt ]
 
+#Time and initial condition
+y0 = [
+    0.3,    # C initial cell count
+    1,    # MSC initial cell count
+    0.1,    # Latent Unbound TGF-B initial concentration
+    0,    # Latent Bound TGF-B initial concentration
+    0,    # Active TGF-B initial concentration
+]
+ 
+t_start, t_end = 0, 1000          # time in minutes
+t_eval = np.linspace(t_start, t_end, 500)
