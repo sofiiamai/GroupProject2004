@@ -87,3 +87,29 @@ def plot_timeseries(sol, title="Cell Culture Model"):
 
 sol = solver()
 plot_timeseries(sol)
+
+#plot a bunch of subplots
+fig, axes = plt.subplots(2, 3, figsize=(15, 8))
+
+axes[0,0].plot(sol.t, sol.y[0], color='blue')
+axes[0,0].set_title('Chondrocyte concentration, mio cells')
+
+axes[0,1].plot(sol.t, sol.y[1], color='orange')
+axes[0,1].set_title('MSCs concentration, mio cells')
+
+axes[0,2].plot(sol.t,sol.y[2], color='green')
+axes[0,2].set_title('TGF-b latent unbound concentration')
+
+axes[1,0].plot(sol.t,sol.y[3], color='purple')
+axes[1,0].set_title('TGF-b latent bound concentration')
+
+axes[1,1].plot(sol.t,sol.y[4], color='red')
+axes[1,1].set_title('TGF-b active concentration')
+
+for ax in axes.flat:
+    ax.set_xlabel('Time')
+    ax.set_ylabel('Concentration')
+    ax.grid(True)
+
+plt.tight_layout()
+plt.show()
