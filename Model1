@@ -21,6 +21,13 @@ params = {
 
 def culture_system (t, y, p):
   C, M, TGFLU, TGFLB, TGFA = y
+
+  # ODE for chondrocytes
+  dC= p["k1"] * (TGFA)**p["f"] * M
+
+  #ODE for Mesenchymal Stem Cells (M)
+  dM = (-p["k1"]*(TGFA)**p["f"])*M + (2*p["k2"]*(TGFA)**p["g"])*M 
+
   # ODE for latent unbound TGF-B 
   dTGFLU = (p["k3"] * C) - (p["k5"] * TGFLU) - (p["k4"] * TGFLU) + (p["k4b"] * TGFLB) - (p["k6"] * TGFLU)  
 
@@ -30,11 +37,6 @@ def culture_system (t, y, p):
   # ODE for the Active TGF-B
   dTGFA = p["k6"]*TGFLU - p["k8"]*TGFA - p["f"]*p["k1"]*TGFA**(p["f"])*M - p["g"]*p["k2"]*TGFA**(p["g"])*M
 
-  #ODE for Mesenchymal Stem Cells (M)
-  dM = (-p["k1"]*(TGFA)**p["f"])*M + (2*p["k2"]*(TGFA)**p["g"])*M 
-
-  # ODE for chondrocytes
-  dC= p["k1"] * (TGFA)**p["f"] * M
   return [dC, dM, dTGFLU, dTGFLB, dTGFA]
 
 #Time and initial condition
