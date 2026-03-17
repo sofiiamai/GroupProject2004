@@ -1,3 +1,108 @@
+#Cell1 - Libraries
 import numpy as np
 from scipy.integrate import solve_ivp
 import matplotlib.pyplot as plt
+
+#Cell2 - Values/Parameters
+#Parameters values
+k1 = 1.4 * 10**(-3) # /min - MSCs to chondrocytes differentiation rate
+k2 = 1.4 * 10**(-4) # /min MSC proliferation rate 
+fd = 0.01 # ng/mL - MSCs to chrondrocyte differentiation threshold
+fp = 0.05 # ng/mL - MSCs proliferation threshold
+k3 = 1.094 * 10**(-1) # ng/(min × Mio cells) - rate of constitutive TGF-β production by Chondrocytes
+k3b = 2 * 10**(-1) # ng/(min × Mio cells) - rate of constitutive TGF-β production by Bone cells
+k4 = 0.1 # /min - TGF-β binding to ECM-Collagen II
+k5 = 6 * 10**(-2) # /min - decay rate of unbound latent TGF-β 
+k6 = 6 * 10**(-2) # /min - activation rate due to chemical interactions
+k7 = 6 * 10**(-2) # /min - decay rate of latern 
+k8 = 0.258 # /min - decay rate of active TGF-β
+Ftot = 6.23 * 10**(-1) # /min - maximum receptor bound TGF-β per MSC  
+Gtot = 6.23 * 10**(-1) # /min - maximum receptor bound TGF-β per Chrondrocyte
+c0 = 0.1 # ng/mL - initial latent unbound TGF-β concentration 
+m0 = 1 # Mio cells/mL - initial MSCs concentration
+n0 = 0.3 # Mio cells/mL - initial chondrocyte concentration
+T = 37 # (⁰C) - culture temperature 
+
+#self defined parameters
+k4b = 0.01 # /min - TGF-β release frombindings to ECM -Collagen II (arbitrarly chosen but binding to ECM favored )
+k9 = 3.25 * 10**(-5) # per min - Chondrocytes decay (due to biology + stress conditions - average half life 21 days)
+Cc = Ftot/50 # Hill equation constant for MSCs
+Cm = Gtot/50 # Hill equation constant for Chondrocytes
+
+# parameters
+f = 1
+g = 1
+
+#Cell 3 - ODES
+def culture_system (t, y):
+    C, M, TGFLU, TGFLB, TGFA = y
+    dTGFLU_dt = (k3 * C) - (k5 * TGFLU) - (k4 * TGFLU) + (k4b * TGFLB) - (k6 * TGFLU)  
+    dTGFLB_dt = k4 * TGFLU - k4b * TGFLB - k7 * TGFLB
+    dTGFA_dt = k6*TGFLU - k8*TGFA - f*k1*TGFA**(f)*M - g*k2*TGFA**(g)*M
+    dM_dt = (-k1)*(TGFA**f)*M + (2*k2*(TGFA)**g)*M
+    dC_dt = k1 * Gtot**f *(TGFA/(TGFA+Cc)) * M - k9 * C
+    #dC_dt = k1 * (TGFA**f) * M - k9 * C
+    return [dC_dt, dM_dt, dTGFLU_dt, dTGFLB_dt, dTGFA_dt]
+
+# Initial concentrations
+TGFLU0 = 1.0 #assumption
+TGFLB0 = 0.0 #assumption
+TGFA0 = 0.0 # assumption
+C0 = 0.3 # n0 - Mio cells/mL - initial chondrocyte concentration
+M0 = 1.0 # m0 - Mio cells/mL - initial MSCs concentration
+y0= [C0,M0, TGFLU0,TGFLB0,TGFA0,]
+
+#time
+t_start = 0      # start time (e.g., minute 0)
+t_end   = 40320    # end time (e.g., minute 600 = 10 hours, 28 days = 40320 min)
+t_eval  = np.linspace(t_start, t_end, 1000000)
+
+# Solve the ODE
+sol = solve_ivp(culture_system, [t_start, t_end], y0, t_eval=t_eval)
+
+#Cell4 - Diagrams
+#Plotting - subplot for each variable over time
+fig, axes = plt.subplots(2, 3, figsize=(15, 8))
+
+#If we want for the TGF-β plots to have comparable range
+y1 = sol.y[0]   # data for first plot
+y2 = sol.y[1]   # data for second plot
+y3 = sol.y[2]   # data for second plot
+
+y_min = min(np.min(y1), np.min(y2), np.min(y3))
+y_max = max(np.max(y1), np.max(y2), np.max(y3))
+
+axes[0,0].set_ylim(y_min, y_max)
+axes[0,1].set_ylim(y_min, y_max)
+axes[0,2].set_ylim(y_min, y_max)
+###
+
+axes[0,0].plot(sol.t/(60*24),sol.y[2], color='green')
+axes[0,0].set_title('TGF-β (latent unbound) ')
+axes[0,0].set_ylabel('Concentration (ng/mL)')
+
+axes[0,1].plot(sol.t/(60*24),sol.y[3], color='purple')
+axes[0,1].set_title('TGF-β (latent bound)')
+axes[0,1].set_ylabel('Concentration (ng/mL)')
+
+axes[0,2].plot(sol.t/(60*24),sol.y[4], color='red')
+axes[0,2].set_title('TGF-β (active)')
+axes[0,2].set_ylabel('Concentration (ng/mL)')
+
+axes[1,0].plot(sol.t/(60*24), sol.y[0], color='blue')
+axes[1,0].set_title('Chondrocytes')
+axes[1,0].set_ylabel('Concentration (Mio cells/mL)')
+
+axes[1,1].plot(sol.t/(60*24), sol.y[1], color='orange')
+axes[1,1].set_title('MSCs')
+axes[1,1].set_ylabel('Concentration (Mio cells/mL)')
+
+for ax in axes.flat:
+    ax.set_xlabel('Time (days)')
+    ax.grid(True, linestyle='--', linewidth=0.5, alpha=0.5)
+
+# Turn off the last (empty) subplot
+axes[1, 2].axis('off')
+
+plt.tight_layout()
+plt.show()
