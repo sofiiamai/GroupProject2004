@@ -1,0 +1,90 @@
+import numpy as np
+from scipy.integrate import solve_ivp
+import matplotlib.pyplot as plt
+
+# parameters
+params = {
+    "k1": 1.4*10**(-3),   # per minute
+    "k2": 1.4*10**(-4),   # per minute
+    "k3": 1.094 * 10**(-1), # ng/(min × Mio cells)
+    "k4": 10**(-1),       # per minute
+    "k4b": 0.3*10**(-1),  # per minute
+    "k5": 6 * 10**(-2),   # per minute
+    "k6": 6 * 10**(-2),   # per minute
+    "k7": 6 * 10**(-2),   # per minute
+    "k8": 0.258,          # per minute
+    "f": 10,
+    "M": 1,
+    "g": 10,
+}
+
+def culture_system(t, y, p):
+    C, M, TGFLU, TGFLB, TGFA = y
+
+    dC = p["k1"] * (TGFA)**p["f"] * M
+    dM = (-p["k1"] * (TGFA)**p["f"]) * M + (2 * p["k2"] * (TGFA)**p["g"]) * M
+    dTGFLU = (p["k3"] * C) - (p["k5"] * TGFLU) - (p["k4"] * TGFLU) + (p["k4b"] * TGFLB) - (p["k6"] * TGFLU)
+    dTGFLB = p["k4"] * TGFLU - p["k4b"] * TGFLB - p["k7"] * TGFLB
+    dTGFA = p["k6"] * TGFLU - p["k8"] * TGFA - p["f"] * p["k1"] * TGFA**(p["f"]) * M - p["g"] * p["k2"] * TGFA**(p["g"]) * M
+
+    return [dC, dM, dTGFLU, dTGFLB, dTGFA]
+
+# 28 days in minutes
+t_start = 0
+t_end = 28 * 24 * 60
+t_eval = np.linspace(t_start, t_end, 200)
+
+def solver(p=params, y_init=None):
+    sol = solve_ivp(
+        fun=lambda t, y: culture_system(t, y, p),
+        t_span=(t_start, t_end),
+        y0=y_init,
+        t_eval=t_eval,
+    )
+    if not sol.success:
+        raise RuntimeError(f"Solver failed: {sol.message}")
+    return sol
+
+def is_healthy(sol, C0, M0):
+    C_day28 = sol.y[0, -1]
+    threshold = 0.5 * (C0 + M0)
+    return C_day28 > threshold
+
+# ranges to test
+C0_values = np.linspace(0.01, 1.0, 50)
+TGFLU0_values = np.linspace(0.0, 1.0, 50)
+
+M0 = 1
+TGFLB0 = 0
+TGFA0 = 0
+
+healthy_points = []
+
+for C0 in C0_values:
+    for TGFLU0 in TGFLU0_values:
+        y_init = [C0, M0, TGFLU0, TGFLB0, TGFA0]
+        sol = solver(y_init=y_init)
+
+        if is_healthy(sol, C0, M0):
+            healthy_points.append((C0, TGFLU0))
+
+healthy_points = np.array(healthy_points)
+
+if len(healthy_points) > 0:
+    min_C0_pair = min(healthy_points, key=lambda x: x[0])
+    min_TGFLU0_pair = min(healthy_points, key=lambda x: x[1])
+    min_sum_pair = min(healthy_points, key=lambda x: x[0] + x[1])
+
+    print("Smallest C0 that works:", min_C0_pair)
+    print("Smallest TGFLU0 that works:", min_TGFLU0_pair)
+    print("Smallest combined input (C0 + TGFLU0):", min_sum_pair)
+
+    plt.figure(figsize=(8,6))
+    plt.scatter(healthy_points[:,0], healthy_points[:,1], s=20)
+    plt.xlabel("Initial chondrocytes C0 (mio cells)")
+    plt.ylabel("Initial latent unbound TGF-β TGFLU0")
+    plt.title("Healthy combinations after 28 days")
+    plt.grid(True)
+    plt.show()
+else:
+    print("No healthy combinations found in the tested range.")
