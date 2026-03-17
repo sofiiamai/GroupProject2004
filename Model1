@@ -58,8 +58,6 @@ def solver(p=params, y_init=y0):
   y0=y_init,
   t_eval=t_eval,
   )
-  if not sol.success:
-    raise RuntimeError(f"Solver failed: {sol.message}")
   return sol
 #make the plotting function 
 
@@ -69,17 +67,17 @@ def plot_timeseries(sol, title="Cell Culture Model"):
     # Cells
     ax1.plot(sol.t, sol.y[0], label="C", lw=2)
     ax1.plot(sol.t, sol.y[1], label="M", lw=2, linestyle="--")
-    ax1.set_ylabel("Cell count")
+    ax1.set_ylabel("Cell concentration, mio cells/mL")
     ax1.legend()
     ax1.set_title(title)
     ax1.grid(True, alpha=0.3)
  
     # Compounds
-    ax2.plot(sol.t, sol.y[2], label="TGFLU", lw=2)
-    ax2.plot(sol.t, sol.y[3], label="TGFLB", lw=2, linestyle="--")
-    ax2.plot(sol.t, sol.y[4], label="TGFA", lw=2, linestyle=":")
-    ax2.set_ylabel("Concentration")
-    ax2.set_xlabel("Time")
+    ax2.plot(sol.t, sol.y[2], label="TGF-β latent unbound concentration", lw=2)
+    ax2.plot(sol.t, sol.y[3], label="TGF-β latent bound concentration", lw=2, linestyle="--")
+    ax2.plot(sol.t, sol.y[4], label="TGF-β active concentration", lw=2, linestyle=":")
+    ax2.set_ylabel("Concentration, ng/mL")
+    ax2.set_xlabel("Time, min")
     ax2.legend()
     ax2.grid(True, alpha=0.3)
  
@@ -94,24 +92,27 @@ plot_timeseries(sol)
 fig, axes = plt.subplots(2, 3, figsize=(15, 8))
 
 axes[0,0].plot(sol.t, sol.y[0], color='blue')
-axes[0,0].set_title('Chondrocyte concentration, mio cells')
+axes[0,0].set_title('Chondrocyte concentration, mio cells/mL')
 
 axes[0,1].plot(sol.t, sol.y[1], color='orange')
-axes[0,1].set_title('MSCs concentration, mio cells')
+axes[0,1].set_title('MSCs concentration, mio cells/mL')
 
 axes[0,2].plot(sol.t,sol.y[2], color='green')
-axes[0,2].set_title('TGF-b latent unbound concentration')
+axes[0,2].set_title('TGF-β latent unbound concentration')
 
 axes[1,0].plot(sol.t,sol.y[3], color='purple')
-axes[1,0].set_title('TGF-b latent bound concentration')
+axes[1,0].set_title('TGF-β latent bound concentration')
 
 axes[1,1].plot(sol.t,sol.y[4], color='red')
-axes[1,1].set_title('TGF-b active concentration')
+axes[1,1].set_title('TGF-β active concentration')
 
-for ax in axes.flat:
-    ax.set_xlabel('Time')
-    ax.set_ylabel('Concentration')
+for i, ax in enumerate(axes.flat):
+    ax.set_xlabel('Time, min')
     ax.grid(True)
+    if i < 2:
+        ax.set_ylabel('Concentration, mio cells/mL')
+    else:
+        ax.set_ylabel('TGF-β Concentration, ng/mL')
 
 plt.tight_layout()
 plt.show()
